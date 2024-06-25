@@ -1,29 +1,24 @@
 import click
 
+class CustomHelp(click.Group):
+    def get_help_option(self, ctx):
+        help_option = super(CustomHelp, self).get_help_option(ctx)
+        if help_option is not None:
+            help_option.help = 'Show this message and exit.'
+            help_option.short_help = 'Show help message.'
+        return help_option
 
-class State:
-    def __init__(self):
-        self.value = "Initial State"
-
-
-def my_callback(ctx, param, value):
-    print("ctx.obj", ctx.obj)
-    print("ctx.invoked_subcommand", ctx.invoked_subcommand)
-    print("ctx.command", ctx.command)
-    if value is not None:
-        click.echo(f'Option value is: {value}')
-    else:
-        click.echo('Option not used.')
-
-        
-@click.group()
+@click.group(cls=CustomHelp, invoke_without_command=True)
 @click.pass_context
 def cli(ctx):
-    print("CLI")
-    ctx.obj = State()
+    if ctx.invoked_subcommand is None:
+        click.echo('No command provided, running default behavior...')
+        click.echo(ctx.get_help())
 
 @cli.command()
-@click.option('--myoption', callback=my_callback, is_flag=True, help='Example option')
-@click.pass_obj
-def show(state, myoption):
-    click.echo(f"Current state value: {state.value}")
+def greet():
+    click.echo('Hello!')
+
+@cli.command()
+def farewell():
+    click.echo('Goodbye!')
