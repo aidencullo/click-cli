@@ -1,24 +1,27 @@
 import click
 
-class CustomHelp(click.Group):
-    def get_help_option(self, ctx):
-        help_option = super(CustomHelp, self).get_help_option(ctx)
-        if help_option is not None:
-            help_option.help = 'Show this message and exit.'
-            help_option.short_help = 'Show help message.'
-        return help_option
-
-@click.group(cls=CustomHelp, invoke_without_command=True)
-@click.pass_context
-def cli(ctx):
-    if ctx.invoked_subcommand is None:
-        click.echo('No command provided, running default behavior...')
-        click.echo(ctx.get_help())
+@click.group()
+@click.option('--verbose', is_flag=True, help='Enable verbose mode.')
+@click.option('--help', '-h', is_flag=True, callback=show_help, expose_value=False, is_eager=True, help='Show this message and exit.')
+def cli(verbose):
+    if verbose:
+        click.echo('Verbose mode enabled.')
 
 @cli.command()
-def greet():
-    click.echo('Hello!')
+def command1():
+    click.echo('Command 1 executed.')
 
 @cli.command()
-def farewell():
-    click.echo('Goodbye!')
+def command2():
+    click.echo('Command 2 executed.')
+
+def show_help(ctx, param, value):
+    if value and not ctx.resilient_parsing:
+        if not ctx.invoked_subcommand:  # Main help
+            click.echo(ctx.get_help())
+        else:  # Sub-command help
+            subcommand = ctx.invoked_subcommand
+            command = ctx.command.commands.get(subcommand)
+            if command:
+                click.echo(command.get_help(ctx))
+        ctx.exit()
