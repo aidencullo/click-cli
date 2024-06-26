@@ -1,15 +1,21 @@
 import click
 
-def callback(ctx, param, value):
-    print('ctx.invoked_subcommand:', ctx.invoked_subcommand)
-    print('ctx.parent.invoked_subcommand:', ctx.parent.invoked_subcommand)
-    
-@click.group()
-@click.pass_context
-def cli(ctx):
-    pass
+class PipenvGroup(click.Group):
+    def get_help_option(self, ctx):
+        def show_help(ctx, param, value):
+            print("Hello, world!")
+            print(ctx.get_help())
+            pass
 
-@cli.command()
-@click.option("--c", callback=callback, expose_value=False, is_flag=True)
-def sync():
+        return click.Option(
+            ["-h", "--help"],
+            is_flag=True,
+            is_eager=True,
+            expose_value=False,
+            callback=show_help,
+            help="Show this message and exit.",
+        )
+
+@click.command(cls=PipenvGroup, invoke_without_command=True)
+def cli():
     pass
