@@ -1,14 +1,15 @@
 import click
 
-def eager(ctx, param, value):
-    print('Eager')
+def callback(ctx, param, value):
+    print('ctx.invoked_subcommand:', ctx.invoked_subcommand)
+    print('ctx.parent.invoked_subcommand:', ctx.parent.invoked_subcommand)
+    
+@click.group()
+@click.pass_context
+def cli(ctx):
+    pass
 
-def lazy(ctx, param, value):
-    print('Lazy')
-
-@click.command()
-@click.option('--other', is_flag=True, callback=lazy)
-@click.option('--other', is_flag=True, callback=lazy)
-@click.option('--verbose', is_flag=True, callback=eager)
-def cli(verbose, other):
+@cli.command()
+@click.option("--c", callback=callback, expose_value=False, is_flag=True)
+def sync():
     pass
