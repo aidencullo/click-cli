@@ -1,30 +1,16 @@
 import click
 
-class PipenvGroup(click.Group):
-    def get_help_option(self, ctx):
-        def show_help(ctx, param, value):
-            print("show_help")
-            if value and not ctx.invoked_subcommand:
-                click.echo(ctx.get_help())
-                ctx.exit()
+class PipenvGroup(click.Group): pass
 
-        return click.Option(
-            ["-h", "--help"],
-            is_flag=True,
-            is_eager=True,
-            expose_value=False,
-            callback=show_help,
-            help="Show this message and exit.",
-        )
+def callback(ctx, param, value):
+    print("ctx.invoked_subcommand: ", ctx.invoked_subcommand)
 
-@click.command(cls=PipenvGroup)
+@click.group(cls=PipenvGroup, invoke_without_command=True)
+@click.option("--name", callback=callback, expose_value=False)
 def cli():
     pass
 
 @cli.command()
+@click.option("--name", callback=callback, expose_value=False)
 def hello():
-    """Prints 'Hello World!'"""
-    click.echo("Hello World!")
-
-if __name__ == '__main__':
-    cli()
+    pass
